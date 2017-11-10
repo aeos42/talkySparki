@@ -1,9 +1,19 @@
-void setup() {
-  // put your setup code here, to run once:
+#include <sparki.h>  // include the sparki library
+int loopCount = 0;
 
+void setup()
+{
+  Serial1.begin(9600);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+  
+    Serial1.print(loopCount);
+    
+    
+    loopCount++;
+
+    delay(1000);
 
 }
