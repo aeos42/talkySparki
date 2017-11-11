@@ -1,4 +1,4 @@
-#Packets
+# Packets
 
 Packets should be wrapped in a start and end tag and should be in the form of:
 
@@ -9,19 +9,24 @@ examples:
 ### scanData packet:
 #"S scan X Y Theta Alpha ping E"
 
-####where:
+#### where:
 command is "scan"
+
 robot coords are (X,Y)
+
 robot is at bearing Theta (0 - 360)
+
 UltraSonic Sensor is at angle Alpha (-30 - 30)
+
 ping is distance recorded
 
 
 ### moveTo packet:
-#"S moveTo X Y Theta"
+# "S moveTo X Y Theta"
 
-####where:
+#### where:
 goal robot coords are (X,Y)
+
 goal robot is at bearing Theta (0 - 360)
 
 --- 
