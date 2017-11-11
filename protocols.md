@@ -7,7 +7,7 @@ Packets should be wrapped in a start and end tag and should be in the form of:
 examples:
 
 ### scanData packet:
-#"S scan X Y Theta Alpha ping E"
+# "S scan X Y Theta Alpha ping E"
 
 #### where:
 command is "scan"
