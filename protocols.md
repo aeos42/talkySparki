@@ -1,14 +1,17 @@
 ## Packets
 
-Packets should be wrapped in a start and end tag and should be in the form of:
+Packets are wrapped in a start and end tag and should be in the form of:
 
-"S (command) (parameter1) (parameter2) (parameter3) E"
+Packets have a variable number of parameters, and so are variable in size.
+
 
 |Byte Number | 0               | 1          | 2     | 3     | ... | n-2   | n-1           |
 |--          |              -- |          --|    -- | --    |  -- | --    | --            |
 |Meaning     | Start of Packet | Command ID | Param | Param | ... | Param | End of Packet | 
 
+
 for n bytes, indexed from zero because computer science.
+
 examples:
 
 ### scanData packet:
@@ -34,7 +37,7 @@ Distance recorded is *ping* (cm)
 
 
 ### moveTo packet:
-# "S moveTo X Y Theta"
+
 
 |Byte Number | 0               | 1          | 2      | 3      | 4     | 5 |
 |--          |              -- |          --|    --  |    --  | --    | --|
