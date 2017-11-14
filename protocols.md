@@ -1,34 +1,51 @@
-# Packets
+## Packets
 
 Packets should be wrapped in a start and end tag and should be in the form of:
 
 "S (command) (parameter1) (parameter2) (parameter3) E"
 
+|Byte Number | 0               | 1          | 2     | 3     | ... | n-2   | n-1           |
+|--          |              -- |          --|    -- | --    |  -- | --    | --            |
+|Meaning     | Start of Packet | Command ID | Param | Param | ... | Param | End of Packet | 
+
+for n bytes, indexed from zero because computer science.
 examples:
 
 ### scanData packet:
-# "S scan X Y Theta Alpha ping E"
 
-#### where:
-command is "scan"
 
-robot coords are (X,Y)
+|Byte Number | 0               | 1          | 2      | 3      | 4     | 5     | 6    |   7            |
+|--          |              -- |          --|    --  |    --  | --    |  --   | --   |  --            |
+|Meaning     | Start of Packet | Scan ID    | xCoord | yCoord | theta | alpha | ping |  End of Packet | 
 
-robot is at bearing Theta (0 - 360)
 
-UltraSonic Sensor is at angle Alpha (-30 - 30)
 
-ping is distance recorded
+Where:
+
+command is "Scan ID"
+
+Robot coordinates are *(xCoord, yCoord)*
+
+robot is at bearing *theta* (0 - 360)
+
+UltraSonic Sensor is at angle *alpha* (-30 - 30)
+
+Distance recorded is *ping* (cm)
 
 
 ### moveTo packet:
 # "S moveTo X Y Theta"
 
-#### where:
-goal robot coords are (X,Y)
+|Byte Number | 0               | 1          | 2      | 3      | 4     | 5 |
+|--          |              -- |          --|    --  |    --  | --    | --|
+|Meaning     | Start of Packet | moveTo ID  | xCoord | yCoord | theta | End of Packet | 
 
-goal robot is at bearing Theta (0 - 360)
 
---- 
+Where:
+
+Robot goal coordinates are (xCoord, yCoord)
+
+goal robot is at bearing *theta* (0 - 360)
+
 
 
