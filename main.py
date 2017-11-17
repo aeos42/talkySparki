@@ -1,12 +1,15 @@
-
-
 from math import cos, sin
+from scanParser import scanParser
+
 resolution = 20
 pi = 3.14159
 
+
+
+
 #should read data in as: [X,Y,theta, alpha, range]
 #test data:
-scans = [	[0,0,90*pi/180,-30*pi/180, 10], #90 degrees from north aligns with the positive x axis
+exScans = [	[0,0,90*pi/180,-30*pi/180, 10], #90 degrees from north aligns with the positive x axis
 			[0,0,90*pi/180,-20*pi/180, 10],
 			[0,0,90*pi/180,-10*pi/180, 10],
 			[0,0,90*pi/180,-00*pi/180, 10],
@@ -30,6 +33,16 @@ scans = [	[0,0,90*pi/180,-30*pi/180, 10], #90 degrees from north aligns with the
 			[5,5,-15*pi/180,20*pi/180, 5],
 			[5,5,-15*pi/180,30*pi/180, 5],
 			]
+scans = exampleScans
+
+
+
+
+#TODO read from sparki
+#scans=[]
+# scans += scanParser(BTtoString)
+
+
 
 
 #convert scans into real world XY
