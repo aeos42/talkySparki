@@ -1,3 +1,5 @@
+from sparkiConnection import *
+
 import time
 from math import cos, sin
 from scanParser import scanParser
@@ -116,18 +118,40 @@ resolution = 40
 explored = [[0 for x in range(-resolution, resolution)] for y in range(0,2*resolution)] #2r * 2r map of what we have explored
 
 finished = False
-scans = exScans
+scans = []
+
+allBots = []
+
+s1 = sparkiConnection(port, baudrate)
+allBots.append(s1)
 
 
 count=0
 while not finished:
-	#scans += SPARKI COMMUNNICATION HERE
 	
-	o, explored = exploreEnv(explored, resolution, scans)
+	idle = True
+	command = "No Command Read"
+	for bot in allBots:
+		if (bot.checkBuffer() > 0):
+			idle = False
+			
+	if not idle:
+		for bot in allBots:
+			if bot.checkBuffer() != 0:
+				command = bot.receiveCommand() #this will wait until it has recieved a full command, then parse it and return it
+				
+				#depending on what the command is, do something
+				#scans.append(command)
+				#
+		
+		
+		#since something changed, we are going to do something with the information
+		o, explored = exploreEnv(explored, resolution, scans)
+		
+		showMap(explored)
+		print(str(count) + ": COMMAND NAME GOES HERE" ))
+		count+=1
 	
-	showMap(explored)
-	print(count)
-	count+=1
 	time.sleep(1)
 	
 
