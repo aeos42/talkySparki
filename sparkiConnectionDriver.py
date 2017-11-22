@@ -12,5 +12,5 @@ while True:
 
 	if (sparkiOne.checkBuffer() > 0):
 
-		print(sparkiOne.recieveCommand())
+		print(sparkiOne.receiveCommand())
 
