@@ -1,7 +1,8 @@
+import time
 from math import cos, sin
 from scanParser import scanParser
 
-resolution = 20
+resolution = 40
 pi = 3.14159
 
 
@@ -25,15 +26,14 @@ exScans = [	[0,0,90*pi/180,-30*pi/180, 10], #90 degrees from north aligns with t
 			[0,0,15*pi/180,20*pi/180, 5],
 			[0,0,15*pi/180,30*pi/180, 5],
 			
-			[5,5,-15*pi/180,-30*pi/180, 5],
-			[5,5,-15*pi/180,-20*pi/180, 5],
-			[5,5,-15*pi/180,-10*pi/180, 5],
-			[5,5,-15*pi/180,00*pi/180, 5],
-			[5,5,-15*pi/180,10*pi/180, 5],
-			[5,5,-15*pi/180,20*pi/180, 5],
-			[5,5,-15*pi/180,30*pi/180, 5],
+			[0,5,-15*pi/180,-30*pi/180, 5],
+			[0,5,-15*pi/180,-20*pi/180, 5],
+			[0,5,-15*pi/180,-10*pi/180, 5],
+			[0,5,-15*pi/180,00*pi/180, 5],
+			[0,5,-15*pi/180,10*pi/180, 5],
+			[0,5,-15*pi/180,20*pi/180, 5],
+			[0,5,-15*pi/180,30*pi/180, 5],
 			]
-scans = exampleScans
 
 
 
@@ -46,7 +46,7 @@ scans = exampleScans
 
 
 #convert scans into real world XY
-def scansToReal(scans):
+def scansToMap(scans):
 	realPoints = []
 	for [rx,ry,t,a,r] in scans:#grab each datapoint
 		#convert to x and y
@@ -56,34 +56,9 @@ def scansToReal(scans):
 	return realPoints
 
 
-#convert points to a map for display
-def showMap(points, x1, y1, x2, y2):#(list of obstacles, s1x, s1y, s2x, s2y)
-	worldMap = [['.' for x in range(-resolution, resolution+1)] for y in range(-resolution, resolution+1)]
-	for [x,y] in points:
-		worldMap[resolution+x][resolution+y] = 'O'   #O for obstacle
-	worldMap[resolution+x1][resolution+y1]="1"
-	worldMap[resolution+x2][resolution+y2]="2"
+#r1 = scansToMap(scans[0:7])
+#r2 = scansToMap(scans[8:])
 
-	print("=========================================")
-	for row in [worldMap[len(worldMap)-1-i] for i in range(0, len(worldMap))]: 
-		r='|'
-		for char in row:
-			r += char
-		r+='|'
-		print(r)
-	print("=========================================")
-
-r1 = scansToReal(scans[0:7])
-#showMap(r1, 0, 0, 5, 5)
-
-r2 = scansToReal(scans[8:])
-#showMap(r2, 0, 0, 5, 5)
-
-#showMap(r1+r2, 0, 0, 5, 5)
-
-
-r = resolution
-explored = [[0 for x in range(-r, r)] for y in range(0,2*r)] #2r * 2r map of what we have explored
 
 
 def exploreEnv(exploreMap, res, scans):
@@ -91,31 +66,70 @@ def exploreEnv(exploreMap, res, scans):
 	exploredMap = exploreMap[:][:]
 	
 	for [rx,ry,t,a,r] in scans:#grab each datapoint
-		#convert the sensed obstacle to x and y
+		# convert the sensed obstacle to x and y
+		# x values should range from -r to r
+		# y values should range from 0 to 2r
+		
 		x = rx + r*cos(t+a)
 		y = ry+ r*sin(t+a)
 		obs.append([res+x,y])
 		
-		for d in range(0,r):
+		for d in range(0,r): # 0<= d <r 
+			
 			x = rx + d*cos(t+a)
 			y = ry + d*sin(t+a)
 			
-			exploredMap[int(res+x)][int(y)] = 1
+			
+			
+			exploredMap[int(y)][int(res+x)] = 1
 	return obs, exploredMap
 		
 
-o, explored = exploreEnv(explored, r, scans)
+
+def showMap(explored):
+	print("="*2*resolution+'==')
+	for row in [explored[len(explored)-1-i] for i in range(0, len(explored))]: 
+		r='|'
+		for char in row:
+			if char == 0:
+				r += '0'
+			if char == 1:
+				r += '.'
+		r+='|'
+		print(r)
+	print("="*2*resolution+'==')
 
 
-print("=========================================")
-for row in [explored[len(explored)-1-i] for i in range(0, len(explored))]: 
-	r='|'
-	for char in row:
-		r += str(char)
-	r+='|'
-	print(r)
-print("=========================================")
 
+
+
+
+
+
+
+
+#======================================================================#
+# MAIN CODE STARTS HERE
+#======================================================================#
+resolution = 40
+
+explored = [[0 for x in range(-resolution, resolution)] for y in range(0,2*resolution)] #2r * 2r map of what we have explored
+
+finished = False
+scans = exScans
+
+
+count=0
+while not finished:
+	#scans += SPARKI COMMUNNICATION HERE
+	
+	o, explored = exploreEnv(explored, resolution, scans)
+	
+	showMap(explored)
+	print(count)
+	count+=1
+	time.sleep(1)
+	
 
 
 
@@ -125,7 +139,6 @@ print("=========================================")
 
 
 #TODO
-
 #2 maps, obstacles & fog of war
 
 
@@ -135,3 +148,21 @@ print("=========================================")
 #Planning
 	#look at unexplored areas and try to path robots into them
 	#dijk only through explored
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
