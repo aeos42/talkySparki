@@ -34,13 +34,25 @@ class sparkiConnection:
 	#input: serial buffer
 	#output: parsed
 	def receiveCommand(self):
+			
+		received = []
+
+		eop = False
+
+		while not eop:
+
+
+			if (self.checkBuffer() > 0):
+				char = self.ser.read().decode('utf-8')
+				received.append(char)
+				
+				if (char == 'E'):
+					eop = True
 		
-		print(str(self.ser.in_waiting) + " bytes in incoming buffer")
-		received = self.ser.read(self.ser.in_waiting)
 
-		toParse = received.decode('utf-8')
+		return received
 
-		print(toParse)
+		
 
 
 	def closeConnection(self):
