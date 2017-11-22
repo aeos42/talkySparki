@@ -23,21 +23,22 @@ class sparkiConnection:
 	#input: command in packet form (list)
 	#output: serial send to Sparki
 	def sendCommand(self, command):
+
 		print("sendCommand stub")
 
 		
-	#input: serial buffer
-	#output: parsed
 	def checkBuffer(self):
 
 		return (self.ser.in_waiting)
 
-	def recieveCommand(self):
+	#input: serial buffer
+	#output: parsed
+	def receiveCommand(self):
 		
 		print(str(self.ser.in_waiting) + " bytes in incoming buffer")
-		recieved = self.ser.read(self.ser.in_waiting)
+		received = self.ser.read(self.ser.in_waiting)
 
-		toParse = recieved.decode('utf-8')
+		toParse = received.decode('utf-8')
 
 		print(toParse)
 
