@@ -4,7 +4,7 @@ import time
 from math import cos, sin
 from scanParser import scanParser
 
-resolution = 40
+resolution = 100
 pi = 3.14159
 
 
@@ -66,12 +66,17 @@ def scansToMap(scans):
 def exploreEnv(exploreMap, res, scans):
 	obs = []
 	exploredMap = exploreMap[:][:]
+
+		
+
 	
 	for [rx,ry,t,a,r] in scans:#grab each datapoint
 		# convert the sensed obstacle to x and y
 		# x values should range from -r to r
 		# y values should range from 0 to 2r
 		
+		r = int(r)
+
 		x = rx + r*cos(t+a)
 		y = ry+ r*sin(t+a)
 		obs.append([res+x,y])
@@ -121,6 +126,10 @@ finished = False
 scans = []
 
 allBots = []
+port = "/dev/cu.ArcBotics-DevB" 
+baudrate = 9600 
+
+
 
 s1 = sparkiConnection(port, baudrate)
 allBots.append(s1)
@@ -139,6 +148,7 @@ while not finished:
 		for bot in allBots:
 			if bot.checkBuffer() != 0:
 				command = bot.receiveCommand() #this will wait until it has recieved a full command, then parse it and return it
+				print(command)
 				
 				#depending on what the command is, do something
 				#scans.append(command)
@@ -148,8 +158,8 @@ while not finished:
 		#since something changed, we are going to do something with the information
 		o, explored = exploreEnv(explored, resolution, scans)
 		
-		showMap(explored)
-		print(str(count) + ": COMMAND NAME GOES HERE" ))
+		#showMap(explored)
+		#print(str(count) + ": COMMAND NAME GOES HERE" )
 		count+=1
 	
 	time.sleep(1)

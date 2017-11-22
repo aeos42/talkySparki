@@ -35,7 +35,7 @@ class sparkiConnection:
 	#output: parsed
 	def receiveCommand(self):
 			
-		received = []
+		received = ""
 
 		eop = False
 
@@ -44,13 +44,19 @@ class sparkiConnection:
 
 			if (self.checkBuffer() > 0):
 				char = self.ser.read().decode('utf-8')
-				received.append(char)
+				received += char
 				
 				if (char == 'E'):
 					eop = True
 		
+		r = received[4:-2].split(" ")
 
-		return received
+		for i in range(0, len(r)):
+
+			r[i] = float(r[i])
+
+
+		return r
 
 		
 

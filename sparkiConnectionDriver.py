@@ -5,7 +5,7 @@ import time
 
 
 
-sparkiOne = sparkiConnection("/dev/tty.usbserial-DN02PLI7", 57600)
+sparkiOne = sparkiConnection("/dev/cu.ArcBotics-DevB", 9600)
 
 while True:
 
