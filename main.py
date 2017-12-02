@@ -118,21 +118,33 @@ def exploreEnv(exploreMap, res, scans):
 		# convert the sensed obstacle to x and y
 		# x values should range from -r to r
 		# y values should range from 0 to 2r
-		
+
+
 		r = int(r)
+
+		if (r == -1) or (r > 2*res): # infinity cases
+			r = 2*res
+
+		#convert to radians for math
+		t = (90+t)*pi/180 #our world is defined in bearing from north, this corrects cos and sin for that calculation
+		a = a*pi/180
+
 
 		x = rx + r*cos(t+a)
 		y = ry+ r*sin(t+a)
+		# this keeps track of where the walls are for later use
 		obs.append([res+x,y])
-		
+
+		#this updates our map with free space we have found.
 		for d in range(0,r): # 0<= d <r 
 			
 			x = rx + d*cos(t+a)
 			y = ry + d*sin(t+a)
 			
-			
-			
-			exploredMap[int(y)][int(res+x)] = 1
+			x = int(x)
+			y = int(y)
+			if (x > -res) and (x < res) and (y > 0) and (y < 2*res):
+				exploredMap[y][res+x] = 1
 	return obs, exploredMap
 		
 
@@ -162,7 +174,6 @@ def showMap(explored):
 #======================================================================#
 # MAIN CODE STARTS HERE
 #======================================================================#
-resolution = 40
 
 explored = [[0 for x in range(-resolution, resolution)] for y in range(0,2*resolution)] #2r * 2r map of what we have explored
 
