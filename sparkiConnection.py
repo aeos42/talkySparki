@@ -24,7 +24,21 @@ class sparkiConnection:
     # output: serial send to Sparki
     def sendCommand(self, command):
 
-        print("sendCommand stub")
+        if (type(command[0]) is str):
+
+            command.insert(0, 'S')
+            command.append('E')
+
+            space = ' '.encode('utf-8')
+
+            commandToSend = space.join([item.encode('utf-8') for item in command])
+
+            self.ser.write(commandToSend)
+
+        else:
+            print("command not formatted correctly")
+
+
 
     def checkBuffer(self):
 
