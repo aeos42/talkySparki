@@ -4,23 +4,21 @@
 
 float pi = 3.1415926535897932384626;
 int interval = 1000;
-String commArray [10]; //array to store communication
-int arrayCounter = 0; //integer to count through commArray
-//int cm = 0;
-//int loopCount = 0;
-//float maxspeed=0.0285;    // [m/s] speed of the robot that you measured
-//float alength=0.0851;     // [m] axle length  
-//float phildotr=0, phirdotr=0; // wheel speeds that you sent to the motors
-//float Xi=0, Yi=0, Thetai=0;
-//float Xrdot, Thetardot;
+int cm = 0;
+int loopCount = 0;
+float maxspeed=0.0285;    // [m/s] speed of the robot that you measured
+float alength=0.0851;     // [m] axle length  
+float phildotr=0, phirdotr=0; // wheel speeds that you sent to the motors
+float Xi=0, Yi=0, Thetai=0;
+float Xrdot, Thetardot;
 
-float rX=0.0;//robot coords
-float rY=0.0;
-float rT=pi/2;
+float rX; //robot coords
+float rY;
+float rT;
 bool eC = false;
-float gX=.2159;//goal coords
-float gY=.2794;
-float gT= pi/2;
+float gX = 0.0;// = 0.2159;//goal coords
+float gY = 0.0;// = 0.2794;
+float gT= 0.0;// = pi/2;
 
 float a = 0.05;
 float b = 0.9;
@@ -40,6 +38,10 @@ void setup() {
   // put your setup code here, to run once:
   sparki.servo(SERVO_CENTER);
   Serial1.begin(9600);
+  state = SA;
+  rX = 0.3;
+  rY = 0.4;
+  rT = pi / 2;
 }
 
 void moveToGoal() {
@@ -48,8 +50,8 @@ void moveToGoal() {
   float t1 = millis();
   //figure out how to drive
   
-  float dX = (gX-rX);
-  float dY = (gY-rY);
+  float dX = (gX - rX);
+  float dY = (gY - rY);
   
   sparki.print(dX);
   sparki.print(" ");
@@ -78,30 +80,19 @@ void moveToGoal() {
   //sparki.println(2*x_rp);
   //sparki.println(d*theta_rp);
   
-  float leftWheelSpeed = ((2*x_rp) - (theta_rp*d)) / (2*r); //max 0.0285
-  float rightWheelSpeed = ((2*x_rp) + (theta_rp*d)) / (2*r); //max 0.0285
-
-  if(rho < 0.02){
-    sparki.println(nu);
-    leftWheelSpeed = -nu;
-    rightWheelSpeed = nu;
-    if(abs(nu) < (5 * pi/180)){
-      leftWheelSpeed = 0;
-      rightWheelSpeed = 0;
-    }
-    state = SA;
-  }
+  float leftWheelSpeed = ((2 * x_rp) - (theta_rp * d)) / (2*r); //max 0.0285
+  float rightWheelSpeed = ((2 * x_rp) + (theta_rp * d)) / (2*r); //max 0.0285
   
   //sparki.println((leftWheelSpeed));
   //sparki.println((rightWheelSpeed));
   
   float scaleFactor = max(abs(leftWheelSpeed), abs(rightWheelSpeed));
   
-  leftWheelSpeed = leftWheelSpeed * (.0285/scaleFactor);
-  rightWheelSpeed = rightWheelSpeed * (.0285/scaleFactor);
+  leftWheelSpeed = leftWheelSpeed * (0.0285 / scaleFactor);
+  rightWheelSpeed = rightWheelSpeed * (0.0285 / scaleFactor);
   
-  sparki.println((leftWheelSpeed/maxWheelSpeed)*100);
-  sparki.println((rightWheelSpeed/maxWheelSpeed)*100);
+  sparki.println((leftWheelSpeed / maxWheelSpeed) * 100);
+  sparki.println((rightWheelSpeed / maxWheelSpeed) * 100);
   
   //rotate while moving towards the point
   //eventually, get on the correct trajectory. keep traveling forward,
@@ -110,18 +101,18 @@ void moveToGoal() {
 
   if(leftWheelSpeed > 0)
     {
-    sparki.motorRotate(MOTOR_LEFT, DIR_CCW, (leftWheelSpeed/maxWheelSpeed)*100); // rotate(which motor, which direction, percent)  
+    sparki.motorRotate(MOTOR_LEFT, DIR_CCW, (leftWheelSpeed / maxWheelSpeed) * 100); // rotate(which motor, which direction, percent)  
   }
   else{
-    sparki.motorRotate(MOTOR_LEFT, DIR_CW, abs((leftWheelSpeed/maxWheelSpeed)*100)); // rotate(which motor, which direction, percent)  
+    sparki.motorRotate(MOTOR_LEFT, DIR_CW, abs((leftWheelSpeed / maxWheelSpeed) * 100)); // rotate(which motor, which direction, percent)  
   
     }
   if(rightWheelSpeed > 0)
     {
-     sparki.motorRotate(MOTOR_RIGHT, DIR_CW, (rightWheelSpeed/maxWheelSpeed)*100);  
+     sparki.motorRotate(MOTOR_RIGHT, DIR_CW, (rightWheelSpeed / maxWheelSpeed) * 100);  
     }
   else{
-    sparki.motorRotate(MOTOR_RIGHT, DIR_CCW, abs((rightWheelSpeed/maxWheelSpeed)*100));  
+    sparki.motorRotate(MOTOR_RIGHT, DIR_CCW, abs((rightWheelSpeed / maxWheelSpeed) * 100));  
   }
   
   //UPDATE MY POS
@@ -131,17 +122,17 @@ void moveToGoal() {
   delay(100);
   
   float t2 = millis();
-  float totalTime = (t2-t1)/1000;
+  float totalTime = (t2-t1) / 1000;
   
-  float Xdot = leftWheelSpeed/2.0 + rightWheelSpeed/2.0;
-  float Thetadot = rightWheelSpeed/d-leftWheelSpeed/d;
+  float Xdot = (leftWheelSpeed / 2.0) + (rightWheelSpeed / 2.0);
+  float Thetadot = (rightWheelSpeed / d) - (leftWheelSpeed / d);
   
   rX = rX + sin(rT) * Xdot * totalTime;
   rY = rY + cos(rT) * Xdot * totalTime;
   rT = rT + Thetadot * totalTime;
 
-  if (rT>(2*pi)){rT = rT-(2*pi);}
-  if (rT<0){rT = rT+(2*pi);}
+  if (rT > ( 2 * pi)){rT = rT - ( 2 * pi);}
+  if (rT < 0){rT = rT + (2 * pi);}
   
   sparki.print("x: ");
   sparki.print(rX);
@@ -150,7 +141,7 @@ void moveToGoal() {
   sparki.print(rY);
   
   sparki.print("  T: ");
-  sparki.println(dT * (180/pi));
+  sparki.println(dT * (180 / pi));
 
   sparki.print("spin:");
   sparki.print(Thetadot);
@@ -159,11 +150,24 @@ void moveToGoal() {
   sparki.print(Xdot);
 
   sparki.updateLCD();
+    if(rho < 0.02){
+
+    sparki.moveForward(0.02);
+//    sparki.println(nu);
+//    leftWheelSpeed = -nu;
+//    rightWheelSpeed = nu;
+//    if(abs(nu) < (5 * pi/180)){
+      leftWheelSpeed = 0;
+      rightWheelSpeed = 0;
+//    }
+    state = SA;
+  }
 }
 
 void readComm()
 {
- 
+ String commArray [10];
+ int arrayCounter = 0;
  while (Serial1.available() && !eC)
  {
  Serial1.println("Hello");
@@ -175,6 +179,7 @@ void readComm()
  else if ((char)inByte == 'E')
  {
    eC = true;
+   break;
  }
  else
  {
@@ -190,28 +195,28 @@ void readComm()
  }
  }
  }
- Serial1.println(commArray[1]);
  if((String) commArray[1] == "move")
  {
   Serial1.println("here!!");
-  rX = (float) atof(commArray[2].c_str());
-  rY = (float) atof(commArray[3].c_str());
+  gX = (float) atof(commArray[2].c_str());
+  gY = (float) atof(commArray[3].c_str());
   state = MTG;
+ }
+ else if ((String) commArray[1] == "scan"){
+  state = SA;
  }
 }
 
 
 void updateSensorCM(int angle) {
-  
   String XiS = (String)" "+rX;
   String YiS = (String) XiS+" "+rY;
-  String ThetaiS = (String) YiS+" "+rT;
+  String ThetaiS = (String) YiS+" "+rT;  
   String angleS = (String) ThetaiS+" "+angle;
-  String pingS = (String) angleS+" "+sparki.ping()+" ";
-  String info = "S"+pingS+"E";
+  String pingS = (String) "S"+angleS+" "+sparki.ping()+" "+"E";
+  Serial1.println(pingS);
   sparki.clearLCD();
-  sparki.print(info);
-  Serial1.println(info);
+  sparki.print(pingS);
   sparki.updateLCD();
   delay(100);
 }
