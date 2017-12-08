@@ -1,74 +1,99 @@
 '''
 purpose: a two-way command handling layer that provides command encoding
-and decoding for serial communicatin to sparki
+and decoding for serial communication to sparki
 '''
+
 import serial
 
 
 class sparkiConnection:
+    def __init__(self, port, baudrate):
 
-	def __init__(self, port, baudrate):
+        self.port = port
+        self.baudrate = baudrate
+        self.ser = serial.Serial(port, baudrate)
+        self.SIZE_LIMIT = 50
 
-		self.port = port
-		self.baudrate = baudrate
-		self.ser = serial.Serial(port, baudrate)
-		
-		if (self.ser.is_open):
-			print("port is open at " + self.ser.name)
+        if self.ser.is_open:
+            print("port is open at " + self.ser.name)
 
-		else:
-			print("error: port not opened")	
+        else:
+            print("error: port not opened")
 
+    # input: command in packet form (list)
+    # output: serial send to Sparki
+    def sendCommand(self, command):
 
-	#input: command in packet form (list)
-	#output: serial send to Sparki
-	def sendCommand(self, command):
+        if (type(command[0]) is str):
 
-		print("sendCommand stub")
+            command.insert(0, 'S')
+            command.append('E')
 
-		
-	def checkBuffer(self):
+            space = ' '.encode('utf-8')
 
-		return (self.ser.in_waiting)
+            commandToSend = space.join([item.encode('utf-8') for item in command])
 
-	#input: serial buffer
-	#output: parsed
-	def receiveCommand(self):
-			
-		received = ""
+            self.ser.write(commandToSend)
 
-		eop = False
-
-		while not eop:
-
-
-			if (self.checkBuffer() > 0):
-				char = self.ser.read().decode('utf-8')
-				received += char
-				
-				if (char == 'E'):
-					eop = True
-		
-		r = received[4:-2].split(" ")
-
-		for i in range(0, len(r)):
-
-			r[i] = float(r[i])
-
-
-		return r
-
-		
-
-
-	def closeConnection(self):
-
-		self.ser.close()
+        else:
+            print("command not formatted correctly")
 
 
 
+    def checkBuffer(self):
+
+        return (self.ser.in_waiting)
+
+    # input: serial buffer
+    # output: parsed
+    def receiveCommand(self):
+
+        received = ""
+
+        sop = False
+        eop = False
+
+        eopOverflow = 0
+        sopOverflow = 0
+
+        if (self.checkBuffer() > 0):
+
+            while not sop:
+
+                char = self.ser.read().decode('utf-8')
+
+                if (char == 'S'):
+                    sop = True
+                if (sopOverflow > self.SIZE_LIMIT):
+                    sop = True
+                    print("exceeded size limit looking for start")
+
+
+            while not eop:
+
+                char = self.ser.read().decode('utf-8')
+                eopOverflow += 1
+                received += char
+
+                if (char == 'E'):
+                    eop = True
+
+                if (eopOverflow > self.SIZE_LIMIT):
+                    eop = True
+                    print("exceeded size limit looking for end")
+
+            recievedList = received[4:-2].split(" ")
+
+            for i in range(0, len(recievedList)):
+                recievedList[i] = float(recievedList[i])
+
+            return recievedList
+
+        else:
+            print("buffer was empty at time of receiveCommand call")
 
 
 
+    def closeConnection(self):
 
-
+        self.ser.close()
