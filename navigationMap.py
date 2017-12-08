@@ -7,9 +7,9 @@ import math
 
 class navBlock:
 
-    def __init__(self, startCoords, endCoords, mapID):
-        self.startCoords = startCoords
-        self.endCoords = endCoords
+    def __init__(self, startIndex, endIndex, mapID):
+        self.startIndex = startIndex
+        self.endIndex = endIndex
         self.visited = False
         self.clear = False
         self.exploreID = None
@@ -25,11 +25,23 @@ class navigationMap:
 
         #block assignment and initiation
 
-        numBlocks = math.ceil(accuracy/blockSize)
+        numBlocks = int(math.ceil(accuracy/blockSize))
+
+        print(numBlocks)
+
+        totalIter = 0
 
         for i in range(0, numBlocks):
             for j in range(0, numBlocks):
-                self.blockList.append(navBlock())
+
+                startIndex = [i*blockSize,j*blockSize]
+                endIndex = [i*blockSize+(blockSize-1), j*blockSize+(blockSize-1)]
+
+                self.blockList.append(navBlock(startIndex, endIndex, totalIter))
+                totalIter += 1
+
+        for block in self.blockList:
+            print('start: ' + str(block.startIndex) + 'end: ' + str(block.endIndex) + 'for block num: ' + str(block.mapID))
 
 
     def assignPaths(self, robots):
