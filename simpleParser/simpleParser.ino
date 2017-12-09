@@ -31,7 +31,8 @@ float maxWheelSpeed = 0.0285;
 enum robotStates {
   SA,
   MTG,
-  WFI
+  WFI,
+  SendIdle
 } state;
 
 void setup() {
@@ -160,7 +161,7 @@ void moveToGoal() {
       leftWheelSpeed = 0;
       rightWheelSpeed = 0;
 //    }
-    state = SA;
+    state = SendIdle;
   }
 }
 
@@ -213,7 +214,7 @@ void updateSensorCM(int angle) {
   String YiS = (String) XiS+" "+rY;
   String ThetaiS = (String) YiS+" "+rT;  
   String angleS = (String) ThetaiS+" "+angle;
-  String pingS = (String) "S"+angleS+" "+sparki.ping()+" "+"E";
+  String pingS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
   Serial1.println(pingS);
   sparki.clearLCD();
   sparki.print(pingS);
@@ -223,13 +224,13 @@ void updateSensorCM(int angle) {
 
 int scanDir() {
   // those angle ranges are the best for sparki spin his head, i.e. 180 degree
-  for (int angle = -80; angle < 81; angle = angle + 10){
+  for (int angle = -80; angle < 81; angle = angle + 1){
     sparki.servo(angle);
     updateSensorCM(angle);
     //updateSensorRead();s
     if (angle >= 80){
       sparki.servo(SERVO_CENTER);
-      state = WFI;
+      state = SendIdle;
       Serial1.println("I'm hitting angle 80");
       eC = false;
     }
@@ -244,6 +245,10 @@ switch ( state )
       break;
   case MTG:
       moveToGoal();
+      break;
+  case SendIdle:
+      Serial1.println("S idle E");
+      state = WFI;
       break;
   case WFI:
       readComm();
