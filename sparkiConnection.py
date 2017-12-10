@@ -31,8 +31,8 @@ class sparkiConnection:
 
             space = ' '.encode('utf-8')
 
-            commandToSend = space.join([item.encode('utf-8') for item in command])
-
+            commandToSend = space.join([str(item).encode('utf-8') for item in command])
+            print(commandToSend)
             self.ser.write(commandToSend)
 
         else:
@@ -82,11 +82,13 @@ class sparkiConnection:
                     eop = True
                     print("exceeded size limit looking for end")
 
-            recievedList = received[4:-2].split(" ")
+            recievedList = received[1:-2].split(" ")
 
             for i in range(0, len(recievedList)):
-                recievedList[i] = float(recievedList[i])
-
+                try:
+                    recievedList[i] = float(recievedList[i])
+                except:
+                    continue
             return recievedList
 
         else:
