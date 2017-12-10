@@ -1,6 +1,7 @@
 import serial
 import time
 
+print(serial.Serial.tools.list_ports.comports()) 
 ser = serial.Serial("/dev/cu.ArcBotics-DevB", 9600)
 
 print(ser.name) 
