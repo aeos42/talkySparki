@@ -29,7 +29,7 @@ enum robotStates {
   SA,
   MTG,
   WFI,
-  SendIdle
+  SendIdel
 } state;
 
 void setup() {
@@ -105,17 +105,14 @@ void moveToGoal() {
     }
     else
     {
-      float degs = Thetai * (180 / pi);
-      float diff = (degs - Thetag);
-      if (diff > 0) {
-        sparki.moveRight(abs(diff));
-      }
-      if (diff < 0) {
-        sparki.moveLeft(abs(diff));
-      }
-      Thetai = Thetag * (pi / 180);
       sparki.moveStop();
-      state = SendIdle;
+      state = SendIdel;
+      Xrdot = phildotr / 2.0 + phirdotr / 2.0;
+      Thetardot = phirdotr / alength - phildotr / alength;
+      
+      Xi = Xi + cos(Thetai) * Xrdot * 0.1;
+      Yi = Yi + sin(Thetai) * Xrdot * 0.1;
+      Thetai = Thetai + Thetardot * 0.1;
       move = false;
     }
 
@@ -144,12 +141,27 @@ void moveToGoal() {
   }
 }
 
+void rotate() {
+  float degs = Thetai * (180 / pi);
+  float diff = (degs - Thetag);
+  if (diff < 0) {
+    sparki.moveLeft(abs(diff));
+  }
+  if (diff > 0) {
+    sparki.moveRight(abs(diff));
+  }
+  sparki.moveStop();
+  Thetai = Thetag * (pi / 180);
+  state = SendIdel;
+}
+
 void readComm()
 {
   String commArray [10];
   int arrayCounter = 0;
   while (Serial1.available() && !eC)
   {
+    Serial1.println("Hello");
     int inByte = Serial1.read();
     if ((char)inByte == 'S')
     {
@@ -176,24 +188,30 @@ void readComm()
   }
   if ((String) commArray[1] == "move")
   {
+    Serial1.println("here!!");
     Yg = - (float) atof(commArray[2].c_str());
     Xg = (float) atof(commArray[3].c_str());
-    Thetag = (float) atof(commArray[4].c_str());
     state = MTG;
   }
   else if ((String) commArray[1] == "scan") {
     state = SA;
   }
+  else if ((String) commArray[1] == "rotate") {
+    Thetag = - (float) atof(commArray[2].c_str());
+    rotate();
+  }
 }
 
 void updateSensorCM(int angle) {
-  String XiS = (String)" " + Xi;
-  String YiS = (String) XiS + " " + Yi;
-  String ThetaiS = (String) YiS + " " + Thetai;
+  String XiS = (String)" " + (-Yi);
+  String YiS = (String) XiS + " " + (Xi);
+  String ThetaiS = (String) YiS + " " + (-Thetai*(180/pi));
   String angleS = (String) "S scan" + ThetaiS + " " + angle + " " + sparki.ping() + " " + "E";
   //String thatS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
   Serial1.println(angleS);
-  
+  sparki.clearLCD();
+  sparki.println(angleS);
+  sparki.updateLCD();
   delay(100);
 }
 
@@ -205,7 +223,8 @@ int scanDir() {
     //updateSensorRead();s
     if (angle >= 80) {
       sparki.servo(SERVO_CENTER);
-      state = SendIdle;
+      state = SendIdel;
+      Serial1.println("I'm hitting angle 80");
       //eC = false;
     }
   }
@@ -221,7 +240,7 @@ void loop() {
     case MTG:
       moveToGoal();
       break;
-    case SendIdle:
+    case SendIdel:
       Serial1.println("S Idle E");
       state = WFI;
       break;
