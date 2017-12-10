@@ -21,13 +21,12 @@ class navigationMap:
 
     #sensor map is size (accuracy, accuracy)
     def __init__(self, blockSize, accuracy):
+        self.accuracy = accuracy
         self.blockList = []
 
         #block assignment and initiation
 
-        numBlocks = int(math.ceil(accuracy/blockSize))
-
-        print(numBlocks)
+        numBlocks = int(math.ceil(self.accuracy/blockSize))
 
         totalIter = 0
 
@@ -40,12 +39,29 @@ class navigationMap:
                 self.blockList.append(navBlock(startIndex, endIndex, totalIter))
                 totalIter += 1
 
+        #for block in self.blockList:
+            #print('start: ' + str(block.startIndex) + 'end: ' + str(block.endIndex) + 'for block num: ' + str(block.mapID))
+
+    def findOpenBlocks(self):
         for block in self.blockList:
-            print('start: ' + str(block.startIndex) + 'end: ' + str(block.endIndex) + 'for block num: ' + str(block.mapID))
+            checkBlock(block)
+
+
+    def checkBlock(self, block):
+        for i in range()
+
+
+    def arrayIndexToCoords(self, indices):
+        return [indices[1] - self.accuracy, indices[0]]
+
+
+    def coordsToArrayIndex(self, coords):
+        return [coords[1], coords[0]+self.accuracy]
 
 
     def assignPaths(self, robots):
         print('stub')
+
 
     def findPaths(self):
         print('stub')
