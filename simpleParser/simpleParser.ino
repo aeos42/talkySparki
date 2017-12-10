@@ -46,7 +46,7 @@ void setup() {
 }
 
 void moveToGoal() {
-    long int time_start = millis();
+  long int time_start = millis();
   int threshold = 700;
 
   // CALCULATE ERROR 
