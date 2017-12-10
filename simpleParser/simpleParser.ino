@@ -150,7 +150,6 @@ void readComm()
   int arrayCounter = 0;
   while (Serial1.available() && !eC)
   {
-    Serial1.println("Hello");
     int inByte = Serial1.read();
     if ((char)inByte == 'S')
     {
@@ -177,7 +176,6 @@ void readComm()
   }
   if ((String) commArray[1] == "move")
   {
-    Serial1.println("here!!");
     Yg = - (float) atof(commArray[2].c_str());
     Xg = (float) atof(commArray[3].c_str());
     Thetag = (float) atof(commArray[4].c_str());
@@ -195,9 +193,7 @@ void updateSensorCM(int angle) {
   String angleS = (String) "S scan" + ThetaiS + " " + angle + " " + sparki.ping() + " " + "E";
   //String thatS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
   Serial1.println(angleS);
-  sparki.clearLCD();
-  sparki.println(angleS);
-  sparki.updateLCD();
+  
   delay(100);
 }
 
@@ -210,7 +206,6 @@ int scanDir() {
     if (angle >= 80) {
       sparki.servo(SERVO_CENTER);
       state = SendIdel;
-      Serial1.println("I'm hitting angle 80");
       //eC = false;
     }
   }
