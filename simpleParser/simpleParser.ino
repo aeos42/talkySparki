@@ -29,7 +29,6 @@ enum robotStates {
   SA,
   MTG,
   WFI,
-
   SendIdle
 } state;
 
@@ -116,7 +115,7 @@ void moveToGoal() {
       }
       Thetai = Thetag * (pi / 180);
       sparki.moveStop();
-      state = SendIdel;
+      state = SendIdle;
       move = false;
     }
 
@@ -207,8 +206,7 @@ int scanDir() {
     if (angle >= 80) {
       sparki.servo(SERVO_CENTER);
       state = SendIdle;
-      Serial1.println("I'm hitting angle 80");
-      eC = false;
+      //eC = false;
     }
   }
 }
@@ -223,11 +221,12 @@ void loop() {
     case MTG:
       moveToGoal();
       break;
-  case SendIdle:
-      Serial1.println("S idle E");
+    case SendIdle:
+      Serial1.println("S Idle E");
       state = WFI;
       break;
-  case WFI:
+    case WFI:
+      eC = false;
       readComm();
       break;
   }
