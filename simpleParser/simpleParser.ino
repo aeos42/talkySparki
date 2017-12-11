@@ -20,10 +20,13 @@ float Xg = 0.0;// = 0.2159;//goal coords
 float Yg = 0.0;// = 0.2794;
 float Thetag = 0.0;// = pi/2;
 
+float alpha, rho, eta; // error between positions in terms of angle to the goal, distance to the goal, and final angle
+
 float a = 0.1;
 float b = 1;
 float c = 0.1;
-float alpha, rho, eta; // error between positions in terms of angle to the goal, distance to the goal, and final angle
+
+
 
 enum robotStates {
   SA,
@@ -38,16 +41,12 @@ void setup() {
   sparki.beep();
   Serial1.begin(9600);
   state = SA;
-  rX = 0.3;
-  rY = 0.4;
-  rT = pi / 2;
 }
 
 void moveToGoal() {
   boolean move = true;
   while (move) {
     long int time_start = millis();
-    int threshold = 700;
 
     // CALCULATE ERROR
     rho   = sqrt((Xi - Xg) * (Xi - Xg) + (Yi - Yg) * (Yi - Yg));
@@ -77,13 +76,19 @@ void moveToGoal() {
     } else if (phirdotr < -maxspeed) {
       phirdotr = -maxspeed;
     }
-
+    
+    float normalization = max(phildotr, phirdotr);
+    phildotr = phildotr*(maxspeed/normalization);
+    phirdotr = phirdotr*(maxspeed/normalization);
+    
+    
     float leftspeed  = abs(phildotr);
     float rightspeed = abs(phirdotr);
 
     leftspeed = (leftspeed / maxspeed) * 100;//100
     rightspeed = (rightspeed / maxspeed) * 100;//100
 
+    
     if (rho > 0.01) // if farther away than 1cm
     {
       if (phildotr > 0)
@@ -115,22 +120,9 @@ void moveToGoal() {
       }
       Thetai = Thetag * (pi / 180);
       sparki.moveStop();
-      state = SendIdle;
+      state = WFI;
       move = false;
     }
-
-    sparki.clearLCD(); // wipe the screen
-
-    sparki.print(Xi);
-    sparki.print("/");
-    sparki.print(Yi);
-    sparki.print("/");
-    sparki.print(Thetai);
-    sparki.println();
-    sparki.print(alpha / PI * 180);
-    sparki.println();
-
-    sparki.updateLCD(); // display all of the information written to the screen
 
     // perform odometry
     Xrdot = phildotr / 2.0 + phirdotr / 2.0;
@@ -139,10 +131,32 @@ void moveToGoal() {
     Xi = Xi + cos(Thetai) * Xrdot * 0.1;
     Yi = Yi + sin(Thetai) * Xrdot * 0.1;
     Thetai = Thetai + Thetardot * 0.1;
-
+    displayInfo();
     while (millis() < time_start + 100);
   }
 }
+void displayInfo(){
+  
+    sparki.clearLCD(); // wipe the screen
+
+    sparki.print("X: ");
+    sparki.print(Xi);
+    sparki.print("  G: ");
+    sparki.println(Xg);
+
+    sparki.print("Y: ");
+    sparki.print(Yi);
+    sparki.print("  G: ");
+    sparki.println(Yg);
+
+    sparki.print("T: ");
+    sparki.print(Thetai);
+    sparki.print("  G: ");
+    sparki.println(Thetag);
+
+    sparki.updateLCD(); // display all of the information written to the screen
+
+  }
 
 void readComm()
 {
@@ -176,9 +190,13 @@ void readComm()
   }
   if ((String) commArray[1] == "move")
   {
-    Yg = - (float) atof(commArray[2].c_str());
-    Xg = (float) atof(commArray[3].c_str());
-    Thetag = (float) atof(commArray[4].c_str());
+    Yg = - (float) atof(commArray[2].c_str())/100;
+    Xg = (float) atof(commArray[3].c_str())/100;
+    Thetag = (float) atof(commArray[4].c_str())*pi/180;
+    sparki.clearLCD();
+    sparki.print(commArray[3].c_str());
+    sparki.updateLCD();
+    delay(1000);
     state = MTG;
   }
   else if ((String) commArray[1] == "scan") {
@@ -187,32 +205,32 @@ void readComm()
 }
 
 void updateSensorCM(int angle) {
-  String XiS = (String)" " + Xi;
-  String YiS = (String) XiS + " " + Yi;
-  String ThetaiS = (String) YiS + " " + Thetai;
+  String XiS = (String)" " + Xi*100;
+  String YiS = (String) XiS + " " + Yi*100;
+  String ThetaiS = (String) YiS + " " + Thetai*180/pi;
   String angleS = (String) "S scan" + ThetaiS + " " + angle + " " + sparki.ping() + " " + "E";
   //String thatS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
   Serial1.println(angleS);
   
-  delay(100);
+  sparki.clearLCD();
+  sparki.print(angleS);
+  sparki.updateLCD();
+  delay(10);
 }
 
 int scanDir() {
   // those angle ranges are the best for sparki spin his head, i.e. 180 degree
-  for (int angle = -80; angle < 81; angle = angle + 10) {
+  for (int angle = -80; angle < 81; angle = angle + 5) {
     sparki.servo(angle);
     updateSensorCM(angle);
-    //updateSensorRead();s
-    if (angle >= 80) {
-      sparki.servo(SERVO_CENTER);
-      state = SendIdle;
-      //eC = false;
-    }
   }
+  sparki.servo(SERVO_CENTER);
+  state = SendIdle;
+  
 }
 
 void loop() {
-
+  displayInfo();
   switch ( state )
   {
     case SA:
