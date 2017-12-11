@@ -1,69 +1,103 @@
 '''
 navigation map class -- uses the sensor data map to generate a navigable space map for sparki to move
 sensor map is 200 * 200
-
 '''
+
 import math
+from enum import Enum
+from collections import deque
+import time
 
-class navBlock:
-
-    def __init__(self, startIndex, endIndex, mapID):
-        self.startIndex = startIndex
-        self.endIndex = endIndex
-        self.visited = False
-        self.clear = False
-        self.exploreID = None
-        self.mapID = mapID
-        self.neighbors = []
-
-
-class navigationMap:
-
-    #sensor map is size (accuracy, accuracy)
-    def __init__(self, blockSize, accuracy):
-        self.accuracy = accuracy
-        self.blockList = []
-
-        #block assignment and initiation
-
-        numBlocks = int(math.ceil(self.accuracy/blockSize))
-
-        totalIter = 0
-
-        for i in range(0, numBlocks):
-            for j in range(0, numBlocks):
-
-                startIndex = [i*blockSize,j*blockSize]
-                endIndex = [i*blockSize+(blockSize-1), j*blockSize+(blockSize-1)]
-
-                self.blockList.append(navBlock(startIndex, endIndex, totalIter))
-                totalIter += 1
-
-        #for block in self.blockList:
-            #print('start: ' + str(block.startIndex) + 'end: ' + str(block.endIndex) + 'for block num: ' + str(block.mapID))
-
-    def findOpenBlocks(self):
-        for block in self.blockList:
-            checkBlock(block)
+sampleMap = [[0, 0, 0, 0, 0, 0],
+             [1, 1, 1, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 1, 0],
+             [0, 0, 0, 0, 0, 0],
+             [1, 1, 1, 0, 0, 0],
+             ]
+accuracy = 3
 
 
-    def checkBlock(self, block):
-        for i in range()
+class mapNode:
 
+    def __init__(self, indices, dir):
+        self.indices = indices
+        self.checked = False
+        self.parent = None
+        self.direction = dir
+
+    def printNode(self):
+        print(" node:" + " checked: " + str(self.checked) + " parent: " + str(self.parent) + " direction: " + self.direction)
+
+
+class NavigationMap:
+
+    def __init__(self):
+        self.deck = deque()
+        self.tree = []
+
+    #takes in the ARRAY locations for each robot
+    #each robot[num]Loc is a two-member list [R,C] for robot location map[R][C]
+    def findPaths(self, robotOneLoc, navMap):
+
+        rShifts =      ( -1,-1, 0, 1, 1, 1, 0,-1)
+        cShifts =      (  0, 1, 1, 1, 0,-1,-1,-1)
+        shiftMeaning = ('up', 'upRight', 'right', 'downRight', 'down', 'downLeft', 'left', 'upLeft')
+
+        self.deck.append(mapNode(robotOneLoc, 'none'))
+
+        while (len(self.deck) > 0):
+
+
+            currentNode = self.deck.pop()
+            currentNode.checked = True
+            currentNode.printNode()
+            self.tree.append(currentNode)
+
+            neighbors = []
+
+            for i in range(0, len(rShifts)):
+                shiftedIndices = [currentNode.indices[0] + rShifts[i], currentNode.indices[1] + cShifts[i]]
+                nodeIndices = self.returnValidNeighbor(shiftedIndices)
+
+                if nodeIndices:
+                    neighbors.append(mapNode(nodeIndices, shiftMeaning[i]))
+
+            for node in neighbors:
+                if self.isFree(node.indices, navMap):
+                    node.parent = currentNode
+                    self.tree.append(node)
+
+                    #magic: prioritizes straight directions by jumping the line
+                    if (currentNode.direction == node.direction):
+                        self.deck.appendleft(node)
+                    else:
+                        self.deck.append(node)
+
+            time.sleep(1)
+
+
+    def returnValidNeighbor(self, indices):
+        for index in indices:
+            if ((index >= 2*accuracy) or (index < 0)):
+                return False
+        #print(str(indices) + "is in map")
+        return indices
+
+    def isFree(self, indices, navMap):
+        if (navMap[indices[0]][indices[1]] == 0):
+            return True
+        return False
 
     def arrayIndexToCoords(self, indices):
-        return [indices[1] - self.accuracy, indices[0]]
-
+        return [indices[1] - accuracy, indices[0]]
 
     def coordsToArrayIndex(self, coords):
-        return [coords[1], coords[0]+self.accuracy]
+        return [coords[1], coords[0] + accuracy]
 
 
-    def assignPaths(self, robots):
-        print('stub')
 
+myMap = NavigationMap()
 
-    def findPaths(self):
-        print('stub')
-
-
+robotLoc = [0,5]
+myMap.findPaths(robotLoc, navMap=sampleMap)
