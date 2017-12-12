@@ -23,21 +23,65 @@ class mapNode:
     def __init__(self, indices, dir):
         self.indices = indices
         self.checked = False
+        self.adjacent = []
         self.parent = None
         self.direction = dir
 
     def printNode(self):
-        print(" node:" + " checked: " + str(self.checked) + " parent: " + str(self.parent) + " direction: " + self.direction)
+        print("node")
 
 
 class NavigationMap:
 
-    def __init__(self):
+    def __init__(self, navMap):
         self.deck = deque()
-        self.tree = []
+        self.tree = {}
+        self.navMap = navMap
+        self.graph = [[None for x in range(0, len(navMap))] for y in range(0, len(navMap[0]))]
 
-    #takes in the ARRAY locations for each robot
-    #each robot[num]Loc is a two-member list [R,C] for robot location map[R][C]
+
+    def buildGraph(self):
+        #reads in the map, and if clear in navMap, add to the graph
+        for i in range(0, len(self.navMap)):
+            for j in range(0, len(self.navMap[i])):
+                if (self.navMap[i][j] == 0):
+                    self.graph[i][j] = mapNode([i,j], None)
+
+        #for each node sent to the graph, checks geographic neighbors and marks them as adjacent
+        for i in range(0, len(self.graph)):
+            for j in range(0, len(self.graph[i])):
+                if self.graph[i][j] is not None:
+                    self.addValidNeighbors(i, j)
+
+        print('hi')
+
+
+    def addValidNeighbors(self, row, col):
+        #these are row & column shifts that define geographic adjacency
+        rShifts = (-1, -1, 0, 1, 1, 1, 0, -1)
+        cShifts = (0, 1, 1, 1, 0, -1, -1, -1)
+
+        for i in range(0, len(rShifts)):
+            neighborLoc = [row + rShifts[i], col + cShifts[i]]
+
+            if self.isValidIndices(neighborLoc):
+                if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                    self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]])
+
+
+    def setNodesAdjacent(self, nodeA, nodeB):
+        nodeA.adjacent.append(nodeB)
+
+
+    def isValidIndices(self, indices):
+        for index in indices:
+            if ((index >= 2*accuracy) or (index < 0)):
+                return False
+        return True
+
+
+    # takes in the ARRAY locations for each robot
+    # each robot[num]Loc is a two-member list [R,C] for robot location map[R][C]
     def findPaths(self, robotOneLoc, navMap):
 
         rShifts =      ( -1,-1, 0, 1, 1, 1, 0,-1)
@@ -52,7 +96,7 @@ class NavigationMap:
             currentNode = self.deck.pop()
             currentNode.checked = True
             currentNode.printNode()
-            self.tree.append(currentNode)
+
 
             neighbors = []
 
@@ -66,9 +110,8 @@ class NavigationMap:
             for node in neighbors:
                 if self.isFree(node.indices, navMap):
                     node.parent = currentNode
-                    self.tree.append(node)
 
-                    #magic: prioritizes straight directions by jumping the line
+                    #prioritizes straight directions by jumping the line
                     if (currentNode.direction == node.direction):
                         self.deck.appendleft(node)
                     else:
@@ -81,8 +124,8 @@ class NavigationMap:
         for index in indices:
             if ((index >= 2*accuracy) or (index < 0)):
                 return False
-        #print(str(indices) + "is in map")
         return indices
+
 
     def isFree(self, indices, navMap):
         if (navMap[indices[0]][indices[1]] == 0):
@@ -97,7 +140,6 @@ class NavigationMap:
 
 
 
-myMap = NavigationMap()
+myMap = NavigationMap(sampleMap)
 
-robotLoc = [0,5]
-myMap.findPaths(robotLoc, navMap=sampleMap)
+myMap.buildGraph()
