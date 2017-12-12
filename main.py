@@ -26,7 +26,7 @@ def exploreEnv(exploreMap, res, scans):
 		# ry *= 100
 		
 		r = int(r)
-		if (r == -1) or (r > 3*resolution): # infinity cases
+		if (r == -1) or (r > 60): # infinity cases
 			continue
 			#r = 2*resolution
 		
@@ -122,8 +122,11 @@ def showMap(explored):
 def robotExplore(MapToMoveOn, botNumber, locations, botConnections):
 	currentLocation = locations[botNumber] #[x, y]
 	
-	xDistance = random.randint(-10,10)
-	yDistance = random.randint(0,10)
+	#xDistance = random.randint(0,10)
+	#yDistance = random.randint(10,20)
+	
+	xDistance = 0
+	yDistance = 10
 	
 	print(currentLocation)
 	print(currentLocation[0]+xDistance, currentLocation[1]+yDistance)
@@ -232,14 +235,40 @@ while not finished:
 		print("idle...... {}".format(count))
 		time.sleep(1)
 
-#TODO
-#2 maps, obstacles & fog of war
+###TODO
 
-
-#dijk
-
-#Planning
+# Exploration
 	#look at unexplored areas and try to path robots into them
-	#dijk only through explored
+# Planning
+	#dijk only through explored -- just treat unexplored as blocked areas
+
+	
+#sparki needs help case
+#initalize positions cases
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

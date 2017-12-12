@@ -38,7 +38,6 @@ enum robotStates {
 void setup() {
   // put your setup code here, to run once:
   sparki.servo(SERVO_CENTER);
-  sparki.beep();
   Serial1.begin(9600);
   state = SA;
 }
@@ -140,12 +139,12 @@ void displayInfo(){
     sparki.clearLCD(); // wipe the screen
 
     sparki.print("X: ");
-    sparki.print(Xi);
+    sparki.print((-Yi));
     sparki.print("  G: ");
     sparki.println(Xg);
 
     sparki.print("Y: ");
-    sparki.print(Yi);
+    sparki.print(Xi);
     sparki.print("  G: ");
     sparki.println(Yg);
 
@@ -205,8 +204,8 @@ void readComm()
 }
 
 void updateSensorCM(int angle) {
-  String XiS = (String)" " + Xi*100;
-  String YiS = (String) XiS + " " + Yi*100;
+  String XiS = (String)" " + (-Yi)*100;
+  String YiS = (String) XiS + " " + Xi*100;
   String ThetaiS = (String) YiS + " " + Thetai*180/pi;
   String angleS = (String) "S scan" + ThetaiS + " " + angle + " " + sparki.ping() + " " + "E";
   //String thatS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
@@ -220,7 +219,7 @@ void updateSensorCM(int angle) {
 
 int scanDir() {
   // those angle ranges are the best for sparki spin his head, i.e. 180 degree
-  for (int angle = -80; angle < 81; angle = angle + 5) {
+  for (int angle = -45; angle < 45; angle = angle + 2) {
     sparki.servo(angle);
     updateSensorCM(angle);
   }
