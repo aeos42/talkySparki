@@ -4,8 +4,8 @@ sensor map is 200 * 200
 '''
 
 import math
-from enum import Enum
-from collections import deque
+
+import queue
 import time
 
 sampleMap = [[0, 0, 0, 0, 0, 0],
@@ -28,13 +28,13 @@ class mapNode:
         self.direction = dir
 
     def printNode(self):
-        print("node")
+        print("node" + str(self.indices))
 
 
 class NavigationMap:
 
     def __init__(self, navMap):
-        self.deck = deque()
+        self.queue = queue.Queue()
         self.tree = {}
         self.navMap = navMap
         self.graph = [[None for x in range(0, len(navMap))] for y in range(0, len(navMap[0]))]
@@ -158,42 +158,31 @@ class NavigationMap:
 
     # takes in the ARRAY locations for each robot
     # each robot[num]Loc is a two-member list [R,C] for robot location map[R][C]
-    def findPaths(self, robotOneLoc, navMap):
+    def findPaths(self, robotOneLoc):
+        self.queue.put(self.graph[robotOneLoc[0]][robotOneLoc[1]])
 
-        rShifts =      ( -1,-1, 0, 1, 1, 1, 0,-1)
-        cShifts =      (  0, 1, 1, 1, 0,-1,-1,-1)
-        shiftMeaning = ('up', 'upRight', 'right', 'downRight', 'down', 'downLeft', 'left', 'upLeft')
-
-        self.deck.append(mapNode(robotOneLoc, 'none'))
-
-        while (len(self.deck) > 0):
-
-
-            currentNode = self.deck.pop()
+        while (not self.queue.empty()):
+            currentNode = self.queue.get()
             currentNode.checked = True
-            currentNode.printNode()
+
+            for node in currentNode.adjacent:
+                if not node[0].checked:
+                    node[0].parent = currentNode
+                    self.queue.put(node[0])
+
+        print('hi again')
 
 
-            neighbors = []
+    def retrievePath(self, goalIndices):
 
-            for i in range(0, len(rShifts)):
-                shiftedIndices = [currentNode.indices[0] + rShifts[i], currentNode.indices[1] + cShifts[i]]
-                nodeIndices = self.returnValidNeighbor(shiftedIndices)
+        node = self.graph[goalIndices[0]][goalIndices[1]]
+        indexList = []
 
-                if nodeIndices:
-                    neighbors.append(mapNode(nodeIndices, shiftMeaning[i]))
+        while node.parent is not None:
+            indexList.append([node.indices[0], node.indices[1]])
+            node = node.parent
 
-            for node in neighbors:
-                if self.isFree(node.indices, navMap):
-                    node.parent = currentNode
-
-                    #prioritizes straight directions by jumping the line
-                    if (currentNode.direction == node.direction):
-                        self.deck.appendleft(node)
-                    else:
-                        self.deck.append(node)
-
-            time.sleep(1)
+        return indexList
 
 
     def returnValidNeighbor(self, indices):
@@ -219,3 +208,7 @@ class NavigationMap:
 myMap = NavigationMap(sampleMap)
 
 myMap.buildGraph()
+
+myMap.findPaths([5,5])
+
+print(myMap.retrievePath([0,0]))
