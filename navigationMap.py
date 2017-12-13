@@ -64,72 +64,89 @@ class NavigationMap:
 
         for i in range(0, len(rShifts)):
             if(shiftMeaning[i] == 'up'):
-                j=0
-                while self.isValidIndices([row + rShifts[i], col + cShifts[i]-j]):
-                    neighborLoc = [row + rShifts[i], col + cShifts[i]-j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'down'):
-                j=0
-                while self.isValidIndices([row + rShifts[i], col + cShifts[i]+j]):
-                    neighborLoc = [row + rShifts[i], col + cShifts[i]+j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                           self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'left'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]]):
-                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'right'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]-j]):
-                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'upRight'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]-j]):
-                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]-j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'upLeft'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]-j]):
-                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]-j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'downRight'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]+j]):
-                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]+j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
-            if(shiftMeaning[i] == 'downLeft'):
-                j=0
-                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]+j]):
-                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]-j]
-                    if self.isValidIndices(neighborLoc):
-                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-                    j+=j
+                j = 1
+                while self.isValidIndices([row-j, col]):
+                    neighborLoc = [row-j, col]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'down'):
+                j = 1
+                while self.isValidIndices([row + j, col]):
+                    neighborLoc = [row + j, col]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'left'):
+                j = 1
+                while self.isValidIndices([row, col - j]):
+                    neighborLoc = [row, col - j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'right'):
+                j = 1
+                while self.isValidIndices([row, col + j]):
+                    neighborLoc = [row, col + j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'upRight'):
+                j = 1
+                while self.isValidIndices([row - j, col + j]):
+                    neighborLoc = [row - j, col + j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'upLeft'):
+                j = 1
+                while self.isValidIndices([row - j, col - j]):
+                    neighborLoc = [row - j, col - j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'downRight'):
+                j = 1
+                while self.isValidIndices([row + j, col + j]):
+                    neighborLoc = [row + j, col + j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+            elif(shiftMeaning[i] == 'downLeft'):
+                j = 1
+                while self.isValidIndices([row + j, col - j]):
+                    neighborLoc = [row + j, col - j]
+                    if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                        self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]],
+                                              shiftMeaning[i])
+                    else:
+                        break
+                    j += 1
+
+
     def setNodesAdjacent(self, nodeA, nodeB, Dir):
         nodeA.adjacent.append((nodeB, Dir))
-        print(nodeA.adjacent)
 
 
     def isValidIndices(self, indices):
