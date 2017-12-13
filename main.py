@@ -273,6 +273,33 @@ while not finished:
 				# if robot needs help make the other one come
 				if command[0] == 'help':
 					NeedsHelpBot = botNum
+					helpLocation = command[1:] #x,y
+					if botNum == 0:
+						botToHelp = 1
+					else:
+						botToHelp = 0
+						
+					helperStart = botLocations[botToHelp]
+					
+					
+					pathingMap = [[0 for x in range(-resolution, resolution)] for y in range(0,2*resolution)]
+					
+					for i, row in enumerate(blobMap):
+						for j, col in row:
+							if blobMap[i][j] in [2,0]:
+								pathingMap[i][j] = 1
+							else:
+								pathingMap[i][j] = 0
+					
+					myMap = NavigationMap(pathingMap)
+					myMap.buildGraph()
+					myMap.findPaths(helpLocation)
+					
+					path = myMap.retrievePath(helperStart)
+					
+					helperBot = allBots[botToHelp]
+					for step in path:
+						helperBot.sendCommand(['move', step[0], step[1]])
 					
 		#since something changed, we are going to do something with the information
 		o, explored = exploreEnv(explored, resolution, scans, pastBotLocations)
