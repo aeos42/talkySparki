@@ -60,17 +60,19 @@ class NavigationMap:
         #these are row & column shifts that define geographic adjacency
         rShifts = (-1, -1, 0, 1, 1, 1, 0, -1)
         cShifts = (0, 1, 1, 1, 0, -1, -1, -1)
+        shiftMeaning = ('up', 'upRight', 'right', 'downRight', 'down', 'downLeft', 'left', 'upLeft')
 
         for i in range(0, len(rShifts)):
             neighborLoc = [row + rShifts[i], col + cShifts[i]]
 
             if self.isValidIndices(neighborLoc):
                 if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                    self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]])
+                    self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
 
 
-    def setNodesAdjacent(self, nodeA, nodeB):
-        nodeA.adjacent.append(nodeB)
+    def setNodesAdjacent(self, nodeA, nodeB, Dir):
+        nodeA.adjacent.append((nodeB, Dir))
+        print(nodeA.adjacent)
 
 
     def isValidIndices(self, indices):
