@@ -2,19 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
-float pi = 3.1415926535897932384626;
+static float pi = 3.1415926535897932384626;
 int interval = 1000;
-int cm = 0;
 int loopCount = 0;
-float maxspeed = 0.0285;    // [m/s] speed of the robot that you measured
-float alength = 0.0851;     // [m] axle length
+static float maxspeed = 0.0285;    // [m/s] speed of the robot that you measured
+static float alength = 0.0851;     // [m] axle length
 float phildotr = 0, phirdotr = 0; // wheel speeds that you sent to the motors
 float Xi = 0, Yi = 0, Thetai = 0;
 float Xrdot, Thetardot;
 
-float rX; //robot coords
-float rY;
-float rT;
+
 bool eC = false;
 float Xg = 0.0;// = 0.2159;//goal coords
 float Yg = 0.0;// = 0.2794;
@@ -47,115 +44,128 @@ void moveToGoal() {
   while (move) {
     long int time_start = millis();
 
-    // CALCULATE ERROR
-    rho   = sqrt((Xi - Xg) * (Xi - Xg) + (Yi - Yg) * (Yi - Yg));
-    //alpha = Thetai-atan2(Yi-Yg,Xi-Xg)-PI/2.0;
-    alpha = atan2(Yg - Yi, Xg - Xi) - Thetai;
-    eta   = Thetai - Thetag;
+    int lineL = sparki.lineLeft();
+    int lineC = sparki.lineCenter();
+    int lineR = sparki.lineRight();
 
-    // CALCULATE SPEED IN ROBOT COORDINATE SYSTEM
-    Xrdot = a * rho;
-    //Xrdot=0;
-    Thetardot = b * alpha + c * eta;
-
-    // CALCULATE WHEEL SPEED
-    phildotr = ( 2 * Xrdot - Thetardot * alength) / (2.0);
-    phirdotr = ( 2 * Xrdot + Thetardot * alength) / (2.0);
-
-    // SET WHEELSPEED
-
-    if (phildotr > maxspeed) {
-      phildotr = maxspeed;
+    if (lineL > 700) {
+      Serial1.println("S help " + String((-Yi) * 100) + " " + String(Xi * 100) + " E");
+      sparki.moveStop();
+      sparki.beep();
+      state = WFI;
+      break;
     }
-    else if (phildotr < -maxspeed) {
-      phildotr = -maxspeed;
-    }
-    if (phirdotr > maxspeed) {
-      phirdotr = maxspeed;
-    } else if (phirdotr < -maxspeed) {
-      phirdotr = -maxspeed;
-    }
-    
-    float normalization = max(phildotr, phirdotr);
-    phildotr = phildotr*(maxspeed/normalization);
-    phirdotr = phirdotr*(maxspeed/normalization);
-    
-    
-    float leftspeed  = abs(phildotr);
-    float rightspeed = abs(phirdotr);
+  
+  // CALCULATE ERROR
+  rho   = sqrt((Xi - Xg) * (Xi - Xg) + (Yi - Yg) * (Yi - Yg));
+  //alpha = Thetai-atan2(Yi-Yg,Xi-Xg)-PI/2.0;
+  alpha = atan2(Yg - Yi, Xg - Xi) - Thetai;
+  eta   = Thetai - Thetag;
 
-    leftspeed = (leftspeed / maxspeed) * 100;//100
-    rightspeed = (rightspeed / maxspeed) * 100;//100
+  // CALCULATE SPEED IN ROBOT COORDINATE SYSTEM
+  Xrdot = a * rho;
+  //Xrdot=0;
+  Thetardot = b * alpha + c * eta;
 
-    
-    if (rho > 0.01) // if farther away than 1cm
+  // CALCULATE WHEEL SPEED
+  phildotr = ( 2 * Xrdot - Thetardot * alength) / (2.0);
+  phirdotr = ( 2 * Xrdot + Thetardot * alength) / (2.0);
+
+  // SET WHEELSPEED
+
+  if (phildotr > maxspeed) {
+    phildotr = maxspeed;
+  }
+  else if (phildotr < -maxspeed) {
+    phildotr = -maxspeed;
+  }
+  if (phirdotr > maxspeed) {
+    phirdotr = maxspeed;
+  } else if (phirdotr < -maxspeed) {
+    phirdotr = -maxspeed;
+  }
+
+  float normalization = max(phildotr, phirdotr);
+  phildotr = phildotr * (maxspeed / normalization);
+  phirdotr = phirdotr * (maxspeed / normalization);
+
+
+  float leftspeed  = abs(phildotr);
+  float rightspeed = abs(phirdotr);
+
+  leftspeed = (leftspeed / maxspeed) * 100;//100
+  rightspeed = (rightspeed / maxspeed) * 100;//100
+
+
+  if (rho > 0.01) // if farther away than 1cm
+  {
+    if (phildotr > 0)
     {
-      if (phildotr > 0)
-      {
-        sparki.motorRotate(MOTOR_LEFT, DIR_CCW, leftspeed);
-      }
-      else
-      {
-        sparki.motorRotate(MOTOR_LEFT, DIR_CW, leftspeed);
-      }
-      if (phirdotr > 0)
-      {
-        sparki.motorRotate(MOTOR_RIGHT, DIR_CW, rightspeed);
-      }
-      else
-      {
-        sparki.motorRotate(MOTOR_RIGHT, DIR_CCW, rightspeed);
-      }
+      sparki.motorRotate(MOTOR_LEFT, DIR_CCW, leftspeed);
     }
     else
     {
-      float degs = Thetai * (180 / pi);
-      float diff = (degs - Thetag);
-      if (diff > 0) {
-        sparki.moveRight(abs(diff));
-      }
-      if (diff < 0) {
-        sparki.moveLeft(abs(diff));
-      }
-      Thetai = Thetag * (pi / 180);
-      sparki.moveStop();
-      state = WFI;
-      move = false;
+      sparki.motorRotate(MOTOR_LEFT, DIR_CW, leftspeed);
     }
-
-    // perform odometry
-    Xrdot = phildotr / 2.0 + phirdotr / 2.0;
-    Thetardot = phirdotr / alength - phildotr / alength;
-
-    Xi = Xi + cos(Thetai) * Xrdot * 0.1;
-    Yi = Yi + sin(Thetai) * Xrdot * 0.1;
-    Thetai = Thetai + Thetardot * 0.1;
-    displayInfo();
-    while (millis() < time_start + 100);
+    if (phirdotr > 0)
+    {
+      sparki.motorRotate(MOTOR_RIGHT, DIR_CW, rightspeed);
+    }
+    else
+    {
+      sparki.motorRotate(MOTOR_RIGHT, DIR_CCW, rightspeed);
+    }
   }
-}
-void displayInfo(){
+  else
+  {
+    float degs = Thetai * (180 / pi);
+    float diff = (degs - Thetag);
+    if (diff > 0) {
+      sparki.moveRight(abs(diff));
+    }
+    if (diff < 0) {
+      sparki.moveLeft(abs(diff));
+    }
+    Thetai = Thetag * (pi / 180);
+    sparki.moveStop();
+    state = WFI;
+    move = false;
+  }
+
+  // perform odometry
+  Xrdot = phildotr / 2.0 + phirdotr / 2.0;
+  Thetardot = phirdotr / alength - phildotr / alength;
+
+  Xi = Xi + cos(Thetai) * Xrdot * 0.1;
+  Yi = Yi + sin(Thetai) * Xrdot * 0.1;
+  Thetai = Thetai + Thetardot * 0.1;
   
-    sparki.clearLCD(); // wipe the screen
+  displayInfo();
+  while (millis() < time_start + 100);
+}
+}
+void displayInfo() {
 
-    sparki.print("X: ");
-    sparki.print((-Yi));
-    sparki.print("  G: ");
-    sparki.println(Xg);
+  sparki.clearLCD(); // wipe the screen
 
-    sparki.print("Y: ");
-    sparki.print(Xi);
-    sparki.print("  G: ");
-    sparki.println(Yg);
+  sparki.print("X: ");
+  sparki.print((-Yi));
+  sparki.print("  G: ");
+  sparki.println(Xg);
 
-    sparki.print("T: ");
-    sparki.print(Thetai);
-    sparki.print("  G: ");
-    sparki.println(Thetag);
+  sparki.print("Y: ");
+  sparki.print(Xi);
+  sparki.print("  G: ");
+  sparki.println(Yg);
 
-    sparki.updateLCD(); // display all of the information written to the screen
+  sparki.print("T: ");
+  sparki.print(Thetai);
+  sparki.print("  G: ");
+  sparki.println(Thetag);
 
-  }
+  sparki.updateLCD(); // display all of the information written to the screen
+
+}
 
 void readComm()
 {
@@ -189,9 +199,9 @@ void readComm()
   }
   if ((String) commArray[1] == "move")
   {
-    Yg = - (float) atof(commArray[2].c_str())/100;
-    Xg = (float) atof(commArray[3].c_str())/100;
-    Thetag = (float) atof(commArray[4].c_str())*pi/180;
+    Yg = - (float) atof(commArray[2].c_str()) / 100;
+    Xg = (float) atof(commArray[3].c_str()) / 100;
+    Thetag = (float) atof(commArray[4].c_str()) * pi / 180;
     sparki.clearLCD();
     sparki.print(commArray[3].c_str());
     sparki.updateLCD();
@@ -204,13 +214,13 @@ void readComm()
 }
 
 void updateSensorCM(int angle) {
-  String XiS = (String)" " + (-Yi)*100;
-  String YiS = (String) XiS + " " + Xi*100;
-  String ThetaiS = (String) YiS + " " + Thetai*180/pi;
+  String XiS = (String)" " + (-Yi) * 100;
+  String YiS = (String) XiS + " " + Xi * 100;
+  String ThetaiS = (String) YiS + " " + Thetai * 180 / pi;
   String angleS = (String) "S scan" + ThetaiS + " " + angle + " " + sparki.ping() + " " + "E";
   //String thatS = (String) "S scan"+angleS+" "+sparki.ping()+" "+"E";
   Serial1.println(angleS);
-  
+
   sparki.clearLCD();
   sparki.print(angleS);
   sparki.updateLCD();
@@ -222,10 +232,11 @@ int scanDir() {
   for (int angle = -45; angle < 45; angle = angle + 2) {
     sparki.servo(angle);
     updateSensorCM(angle);
+    delay(100);
   }
   sparki.servo(SERVO_CENTER);
   state = SendIdle;
-  
+
 }
 
 void loop() {
