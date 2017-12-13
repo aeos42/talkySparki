@@ -63,13 +63,70 @@ class NavigationMap:
         shiftMeaning = ('up', 'upRight', 'right', 'downRight', 'down', 'downLeft', 'left', 'upLeft')
 
         for i in range(0, len(rShifts)):
-            neighborLoc = [row + rShifts[i], col + cShifts[i]]
-
-            if self.isValidIndices(neighborLoc):
-                if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
-                    self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
-
-
+            if(shiftMeaning[i] == 'up'):
+                j=0
+                while self.isValidIndices([row + rShifts[i], col + cShifts[i]-j]):
+                    neighborLoc = [row + rShifts[i], col + cShifts[i]-j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'down'):
+                j=0
+                while self.isValidIndices([row + rShifts[i], col + cShifts[i]+j]):
+                    neighborLoc = [row + rShifts[i], col + cShifts[i]+j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                           self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'left'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]]):
+                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'right'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]-j]):
+                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'upRight'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]-j]):
+                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]-j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'upLeft'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]-j]):
+                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]-j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'downRight'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]+j, col + cShifts[i]+j]):
+                    neighborLoc = [row + rShifts[i]+j, col + cShifts[i]+j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
+            if(shiftMeaning[i] == 'downLeft'):
+                j=0
+                while self.isValidIndices([row + rShifts[i]-j, col + cShifts[i]+j]):
+                    neighborLoc = [row + rShifts[i]-j, col + cShifts[i]-j]
+                    if self.isValidIndices(neighborLoc):
+                        if self.graph[neighborLoc[0]][neighborLoc[1]] is not None:
+                            self.setNodesAdjacent(self.graph[row][col], self.graph[neighborLoc[0]][neighborLoc[1]], shiftMeaning[i])
+                    j+=j
     def setNodesAdjacent(self, nodeA, nodeB, Dir):
         nodeA.adjacent.append((nodeB, Dir))
         print(nodeA.adjacent)
