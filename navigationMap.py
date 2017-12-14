@@ -11,7 +11,7 @@ import time
 sampleMap = [[0, 0, 0, 0, 0, 0],
              [1, 1, 1, 0, 0, 0],
              [0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 1, 0],
+             [0, 0, 0, 1, 1, 1],
              [0, 0, 0, 0, 0, 0],
              [1, 1, 1, 0, 0, 0],
              ]
@@ -52,8 +52,6 @@ class NavigationMap:
             for j in range(0, len(self.graph[i])):
                 if self.graph[i][j] is not None:
                     self.addValidNeighbors(i, j)
-
-        print('hi')
 
 
     def addValidNeighbors(self, row, col):
@@ -159,18 +157,22 @@ class NavigationMap:
     # takes in the ARRAY locations for each robot
     # each robot[num]Loc is a two-member list [R,C] for robot location map[R][C]
     def findPaths(self, robotOneLoc):
-        self.queue.put(self.graph[robotOneLoc[0]][robotOneLoc[1]])
+
+        firstNode = self.graph[robotOneLoc[0]][robotOneLoc[1]]
+        firstNode.checked = True
+        self.queue.put(firstNode)
 
         while (not self.queue.empty()):
             currentNode = self.queue.get()
-            currentNode.checked = True
+
 
             for node in currentNode.adjacent:
                 if not node[0].checked:
                     node[0].parent = currentNode
+                    node[0].checked = True
                     self.queue.put(node[0])
 
-        print('hi again')
+        print('debug')
 
 
     def retrievePath(self, goalIndices):
